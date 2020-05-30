@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Mirror;
+using SS3D.Content.Systems.Interactions;
 using SS3D.Engine.Interactions;
 using SS3D.Engine.Interactions.Extensions;
 using SS3D.Engine.Inventory;
@@ -9,10 +10,13 @@ using UnityEngine;
 namespace SS3D.Content.Items.Cosmetic
 {
     [RequireComponent(typeof(AudioSource))]
-    public class Bikehorn : Item, IInteractionTarget
+    public class Bikehorn : Item
     {
         private class HonkInteraction : IInteraction
         {
+
+            public Sprite icon;
+
             public IClientInteraction CreateClient(InteractionEvent interactionEvent)
             {
                 return null;
@@ -23,19 +27,20 @@ namespace SS3D.Content.Items.Cosmetic
                 return "Honk";
             }
 
+            public Sprite GetIcon(InteractionEvent interactionEvent)
+            {
+                return icon;
+            }
+
             public bool CanInteract(InteractionEvent interactionEvent)
             {
                 if (interactionEvent.Target is Bikehorn horn)
                 {
-                    if (!InteractionHelpers.RangeCheck(interactionEvent))
+                    if (!InteractionExtensions.RangeCheck(interactionEvent))
                     {
                         return false;
                     }
                     return !horn.IsHonking();
-                }
-                if (interactionEvent.Source is Bikehorn horn1)
-                {
-                    return !horn1.IsHonking();
                 }
 
                 return false;
@@ -46,10 +51,6 @@ namespace SS3D.Content.Items.Cosmetic
                 if (interactionEvent.Target is Bikehorn horn)
                 {
                     horn.Honk();
-                }
-                if (interactionEvent.Source is Bikehorn horn1)
-                {
-                    horn1.Honk();
                 }
                 return false;
             }
@@ -68,9 +69,12 @@ namespace SS3D.Content.Items.Cosmetic
         [SerializeField] private AudioClip honkSound = null;
         private AudioSource audioSource;
 
+        public Sprite useIcon;
+
         public void Start()
         {
             audioSource = GetComponent<AudioSource>();
+            GenerateNewIcon(); 
         }
 
         private bool IsHonking()
@@ -90,17 +94,12 @@ namespace SS3D.Content.Items.Cosmetic
         {
             audioSource.PlayOneShot(honkSound);
         }
-
-        public override IInteraction[] GenerateInteractions(IInteractionTarget[] targets)
+        
+        public override IInteraction[] GenerateInteractions(InteractionEvent interactionEvent)
         {
-            List<IInteraction> interactions = base.GenerateInteractions(targets).ToList();
-            interactions.Insert(0, new HonkInteraction());
-            return interactions.ToArray();
-        }
-
-        public IInteraction[] GenerateInteractions(InteractionEvent interactionEvent)
-        {
-            return new IInteraction[]{new HonkInteraction()};
+            List<IInteraction> list = base.GenerateInteractions(interactionEvent).ToList();
+            list.Add(new HonkInteraction{ icon = useIcon });
+            return list.ToArray();
         }
     }
 }

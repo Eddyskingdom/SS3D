@@ -7,6 +7,8 @@ namespace SS3D.Content.Systems.Interactions
 {
     public class ViewContainerInteraction : IInteraction
     {
+        public Sprite icon;
+
         public float MaxDistance { get; set; }
         
         public IClientInteraction CreateClient(InteractionEvent interactionEvent)
@@ -19,9 +21,14 @@ namespace SS3D.Content.Systems.Interactions
             return "View Container";
         }
 
+        public Sprite GetIcon(InteractionEvent interactionEvent)
+        {
+            return icon;
+        }
+
         public bool CanInteract(InteractionEvent interactionEvent)
         {
-            if (!InteractionHelpers.RangeCheck(interactionEvent))
+            if (!InteractionExtensions.RangeCheck(interactionEvent))
             {
                 return false;
             }

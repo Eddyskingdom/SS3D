@@ -28,11 +28,15 @@ namespace SS3D.Content.Items.Functional.Tools
         public GameObject LoadingBarPrefab;
         public float Delay;
 
+        public Sprite turnOnIcon;
+        public Sprite constructIcon;
+
         private Dictionary<Turf, Turf> reinforceDict;
         
         public void Start()
         {
             reinforceDict = new Dictionary<Turf, Turf> {{commonWall, reinforcedWall}, {commonFloor, reinforcedFloor}};
+            GenerateNewIcon();
         }
 
         public void OnEnable()
@@ -70,7 +74,8 @@ namespace SS3D.Content.Items.Functional.Tools
                 hotFlame.Stop();
                 coldFlame.Stop();
                 lightParticle.Stop();
-            } else
+            } 
+            else
             {
                 hotFlame.Play();
                 coldFlame.Play();
@@ -79,13 +84,31 @@ namespace SS3D.Content.Items.Functional.Tools
             RpcTurnOn(!hotFlame.isEmitting);
         }
 
-        public override IInteraction[] GenerateInteractions(IInteractionTarget[] targets)
+        public override void CreateInteractions(IInteractionTarget[] targets, List<InteractionEntry> interactions)
         {
-            List<IInteraction> interactions = base.GenerateInteractions(targets).ToList();
-            interactions.Insert(0, new WelderConstructionInteraction {TurfReinforceList = reinforceDict, LoadingBarPrefab = LoadingBarPrefab, Delay = Delay});
-            ToggleInteraction toggleInteraction = new ToggleInteraction {OnName = "Turn off", OffName = "Turn on"};
-            interactions.Insert(GetState() ? 1 : 0, toggleInteraction);
-            return interactions.ToArray();
+            base.CreateInteractions(targets, interactions);
+            interactions.Insert(0, new InteractionEntry(targets[0], new WelderConstructionInteraction
+            {
+                TurfReinforceList = reinforceDict,
+                LoadingBarPrefab = LoadingBarPrefab,
+                Delay = Delay,
+                icon = constructIcon
+            }));
+        }
+
+        public override IInteraction[] GenerateInteractions(InteractionEvent interactionEvent)
+        {
+            List<IInteraction> list = base.GenerateInteractions(interactionEvent).ToList();
+            
+            ToggleInteraction toggleInteraction = new ToggleInteraction 
+            {
+                OnName = "Turn off",
+                OffName = "Turn on",
+                iconOn = turnOnIcon,
+                iconOff = turnOnIcon 
+            };
+            list.Add(toggleInteraction);
+            return list.ToArray();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace SS3D.Engine.Inventory.Extensions
         public int SelectedHand { get; private set; } = 0;
         public float Range = 1.5f;
 
+        public Sprite pickupIcon;
+
         // Use these for inventory actions
         public Container Container => handContainer;
         public GameObject ContainerObject => Container.gameObject;
@@ -171,17 +173,6 @@ namespace SS3D.Engine.Inventory.Extensions
             }
             return interactionSource;
         }
-
-        public override IInteraction[] GenerateInteractions(IInteractionTarget[] targets)
-        {
-            List<IInteraction> interactions = base.GenerateInteractions(targets).ToList();
-            if (GetItemInHand() == null)
-            {
-                interactions.Insert(0, new PickupInteraction());
-            }
-            return interactions.ToArray();
-        }
-
         public float GetInteractionRange()
         {
             return Range;

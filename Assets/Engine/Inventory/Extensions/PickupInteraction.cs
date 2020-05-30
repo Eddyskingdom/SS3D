@@ -1,11 +1,15 @@
-﻿using SS3D.Engine.Interactions;
+using SS3D.Engine.Interactions;
 using SS3D.Engine.Interactions.Extensions;
+using System;
 using UnityEngine;
 
 namespace SS3D.Engine.Inventory.Extensions
 {
+    [Serializable]
+    [CreateAssetMenu(fileName = "Pickup Interaction")]
     public class PickupInteraction : IInteraction
     {
+        public Sprite icon;
 
         public IClientInteraction CreateClient(InteractionEvent interactionEvent)
         {
@@ -17,16 +21,22 @@ namespace SS3D.Engine.Inventory.Extensions
             return "Pick up";
         }
 
+        public Sprite GetIcon(InteractionEvent interactionEvent)
+        {
+            return icon;
+        }
+
         public bool CanInteract(InteractionEvent interactionEvent)
         {
             if (interactionEvent.Target is IGameObjectProvider targetBehaviour)
             {
-                if (targetBehaviour.GameObject.GetComponent<Item>() == null)
+                Item item = targetBehaviour.GameObject.GetComponent<Item>();
+                if (item == null)
                 {
                     return false;
                 }
 
-                return InteractionHelpers.RangeCheck(interactionEvent);
+                return InteractionExtensions.RangeCheck(interactionEvent) && !item.InContainer();
             }
 
             return false;

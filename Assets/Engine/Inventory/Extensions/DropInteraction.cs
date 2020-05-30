@@ -1,11 +1,16 @@
 ﻿using SS3D.Engine.Interactions;
 using SS3D.Engine.Interactions.Extensions;
+using System;
 using UnityEngine;
 
 namespace SS3D.Engine.Inventory.Extensions
 {
+    [Serializable]
     public class DropInteraction : IInteraction
     {
+
+        public Sprite icon;
+
         public IClientInteraction CreateClient(InteractionEvent interactionEvent)
         {
             return null;
@@ -16,6 +21,11 @@ namespace SS3D.Engine.Inventory.Extensions
             return "Drop";
         }
 
+        public Sprite GetIcon(InteractionEvent interactionEvent)
+        {
+            return icon;
+        }
+
         public bool CanInteract(InteractionEvent interactionEvent)
         {
             if (!(interactionEvent.Source.Parent is Hands))
@@ -23,7 +33,7 @@ namespace SS3D.Engine.Inventory.Extensions
                 return false;
             }
 
-            return InteractionHelpers.RangeCheck(interactionEvent);
+            return InteractionExtensions.RangeCheck(interactionEvent);
         }
 
         public bool Start(InteractionEvent interactionEvent, InteractionReference reference)
